@@ -309,6 +309,11 @@ mark.wo{background:var(--word-old);color:inherit;border-radius:3px;padding:0 1px
 @keyframes pulse{to{transform:scale(1.5)}}
 @keyframes twinkle{50%{opacity:.2}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* 워터마크: 터치를 막지 않고, 아주 옅게 */
+.wm{position:absolute;inset:0;pointer-events:none;z-index:20;background:var(--on-surface);opacity:.055;
+  -webkit-mask-repeat:repeat;mask-repeat:repeat}
+.credit{margin-top:14px;font-size:12.5px;color:var(--on-surface-var);display:flex;align-items:center;gap:6px}
+.credit b{color:var(--primary)}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -350,7 +355,8 @@ mark.wo{background:var(--word-old);color:inherit;border-radius:3px;padding:0 1px
     </div>
     <p class="fine">둘 다 꺼둔 상태가 가장 안전해요. 'ZMM_IF001'처럼 문자열 전체가 객체명인 경우는 옵션과 상관없이 바뀌어요.<br>
       모든 처리는 이 기기 브라우저 안에서만 이뤄지고, 소스는 어디에도 전송되지 않아요.<br>
-      <span id="offlineState">오프라인 준비 중…</span> · 버전 5e230ff8</p>
+      <span id="offlineState">오프라인 준비 중…</span> · 버전 f7815a56</p>
+    <div class="credit">🤖 Made by <b id="authorName"></b></div>
   </section>
 </div>
 
@@ -683,6 +689,7 @@ if (typeof module !== "undefined") module.exports = RB;
 <script>
 (() => {
 "use strict";
+const AUTHOR = "Eunjoo Kang";   // 제작자 이름 (워터마크 + 서명) - 여기만 바꾸면 됨
 const SAMPLE_SRC = "*&---------------------------------------------------------------------*\n*& Include ZMM_UPLOAD_F01\n*&---------------------------------------------------------------------*\nFORM get_data.\n  DATA: lt_zcsmat0001_data TYPE TABLE OF zcsmat0001,\n        lv_tab             TYPE tabname VALUE 'ZCSMAT0001'.\n\n  SELECT a~matnr, a~werks\n    FROM zcsmat0001 AS a\n    INNER JOIN zcsmat0002 AS b ON b~matnr = a~matnr\n    INTO CORRESPONDING FIELDS OF TABLE @gt_zcsmat0001.\n\n  gv_zcsmat0001_cnt = lines( gt_zcsmat0001 ).\n\n  LOOP AT gt_zcsmat0001 ASSIGNING <ls_zcsmat0001>.\n    CALL FUNCTION 'ZMM_IF001'\n      EXPORTING\n        is_data = <ls_zcsmat0001>.\n  ENDLOOP.\n\n  SELECT * FROM zcsmat0001_test INTO TABLE @DATA(lt_test).\n  MESSAGE |ZCSMAT0001 { gv_zcsmat0001_cnt }건 처리| TYPE 'S'.\nENDFORM.\n";
 const SAMPLE_MAP = [["ZCSMAT0001","ZCST0007"],["ZCSMAT0002","ZCST0008"],["ZMM_IF001","ZMM_IF101"]];
 const $ = (s, r = document) => r.querySelector(s);
@@ -1144,6 +1151,19 @@ function render() {
   else { body.innerHTML = renderRes(); bindRes(); }
   renderChrome();
 }
+/* ---------- 워터마크 ---------- */
+(function watermark() {
+  const t = `Rename Bot · ${AUTHOR}`;
+  const txt = (x, y) => `<text x='${x}' y='${y}' text-anchor='middle' font-family='monospace' font-size='13' font-weight='700' transform='rotate(-24 ${x} ${y})'>${esc(t)}</text>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='230'>${txt(100, 62)}${txt(300, 177)}</svg>`;
+  const d = document.createElement("div");
+  d.className = "wm"; d.setAttribute("aria-hidden", "true");
+  const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  d.style.webkitMaskImage = url; d.style.maskImage = url;
+  $("#app").appendChild(d);
+  $("#authorName").textContent = AUTHOR;
+})();
+
 st.tab = st.pairs.length ? "run" : "map";
 render();
 

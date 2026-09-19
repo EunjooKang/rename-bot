@@ -1,7 +1,7 @@
 /* Rename Bot 오프라인 저장 (서비스 워커)
    - 한 번 인터넷으로 열면 앱을 폰에 저장 -> 이후 인터넷 없이 열림
    - 열 때마다 저장본을 먼저 보여주고, 인터넷이 되면 뒤에서 새 버전을 받아둠 */
-const CACHE = "rename-bot-5e230ff8";
+const CACHE = "rename-bot-f7815a56";
 const APP = ["./", "./index.html"];
 
 self.addEventListener("install", (e) => {
